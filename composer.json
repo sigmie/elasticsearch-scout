@@ -1,0 +1,61 @@
+{
+    "name": "sigmie/elasticsearch-scout",
+    "description": "Laravel Scout adapter for Elasticsearch by Sigmie.",
+    "keywords": [
+        "sigmie",
+        "elasticsearch-scout",
+        "laravel-scout",
+        "scout",
+        "laravel"
+    ],
+    "homepage": "https://github.com/sigmie/elasticsearch-scout",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "nicoorfi",
+            "email": "nico@sigmie.com"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "spatie/laravel-package-tools": "^1.1",
+        "laravel/scout": "^9.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.3",
+        "phpstan/phpstan": "^9.3",
+        "spatie/laravel-ray": "^1.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sigmie\\ElasticsearchScout\\": "src",
+            "Sigmie\\ElasticsearchScout\\Database\\Factories\\": "database/factories"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sigmie\\ElasticsearchScout\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "psalm": "vendor/bin/psalm",
+        "test": "vendor/bin/phpunit --colors=always",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Sigmie\\ElasticsearchScout\\ElasticsearchScoutServiceProvider"
+            ],
+            "aliases": {
+                "ElasticsearchScout": "Sigmie\\ElasticsearchScout\\ElasticsearchScoutFacade"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
