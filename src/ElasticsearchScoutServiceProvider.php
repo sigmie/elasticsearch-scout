@@ -22,6 +22,8 @@ class ElasticsearchScoutServiceProvider extends PackageServiceProvider
             $auth = config('elasticsearch-scout.auth');
             $config = config('elasticsearch-scout.guzzle_config');
 
+            $hosts = str_contains($hosts, ',') ? explode(',', $hosts) : [$hosts];
+
             $jsonClient = match ($auth['type']) {
                 'none' => JSONClient::create($hosts, $config),
                 'basic' => JSONClient::createWithBasic($hosts, $auth['user'], $auth['password'], $config),

@@ -26,6 +26,7 @@ trait Searchable
     {
         $newIndex->tokenizeOnWordBoundaries()
             ->lowercase()
+            ->trim()
             ->shards(1)
             ->replicas(0);
     }
