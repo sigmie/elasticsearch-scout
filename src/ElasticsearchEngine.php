@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Sigmie\ElasticsearchScout;
 
+use Exception;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
 use Sigmie\Document\Document;
+use Sigmie\Index\UpdateIndex;
 use Sigmie\Mappings\NewProperties;
 use Sigmie\Sigmie;
 
@@ -14,6 +16,43 @@ class ElasticsearchEngine extends Engine
 {
     public function __construct(protected Sigmie $sigmie)
     {
+    }
+
+    public function updateIndexSettings($model, array $options = [])
+    {
+        $model = new $model();
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        $properties = new NewProperties;
+
+        $this->sigmie
+            ->index($indexName)
+            ->update(function (UpdateIndex $update) use ($model) {
+                $properties = new NewProperties;
+
+                $model->elasticsearchProperties($properties);
+
+                $update->properties($properties)
+                    ->shards(config('elasticsearch-scout.index-settings.replicas'))
+                    ->replicas(config('elasticsearch-scout.index-settings.replicas'));
+
+                $model->elasticsearchIndex($update);
+
+                return $update;
+            });
+    }
+
+
+    public function deleteAllIndexes()
+    {
+        $prefix = config('scout.prefix') . '*';
+
+        $indices = $this->sigmie->indices($prefix);
+
+        foreach ($indices as $index) {
+            $this->sigmie->delete($index->name);
+        }
     }
 
     public function lazyMap(Builder $builder, $results, $model)
@@ -40,13 +79,23 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        $index = $this->sigmie->index($indexName);
+
+        if (!is_null($index)) {
+            throw new Exception("Index {$indexName} already exists.");
+        }
+
         $properties = new NewProperties;
 
         $model->elasticsearchProperties($properties);
 
         $newIndex = $this->sigmie
-            ->newIndex($model->searchableAs())
-            ->properties($properties);
+            ->newIndex($indexName)
+            ->properties($properties)
+            ->shards(config('elasticsearch-scout.index-settings.replicas'))
+            ->replicas(config('elasticsearch-scout.index-settings.replicas'));
 
         $model->elasticsearchIndex($newIndex);
 
@@ -57,14 +106,16 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $index = $this->sigmie->index($model->searchableAs());
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        $index = $this->sigmie->index($indexName);
 
         $this->sigmie->delete($index->name);
     }
 
     public function update($models)
     {
-        $indexName = $models->first()->searchableAs();
+        $indexName = config('scout.prefix') . $models->first()->getTable();
 
         $docs = $models
             ->filter(fn ($model) => empty($model->toSearchableArray()) === false)
@@ -79,7 +130,7 @@ class ElasticsearchEngine extends Engine
 
     public function delete($models)
     {
-        $indexName = $models->first()->searchableAs();
+        $indexName = config('scout.prefix') . $models->first()->getTable();
 
         $ids = $models
             ->map(fn ($model) => $model->getScoutKey())
@@ -93,13 +144,15 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
+        $indexName = config('scout.prefix') . $model->getTable();
+
         $limit = $builder->limit ? $builder->limit : 10;
 
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
 
         $newSearch = $this->sigmie
-            ->newSearch($model->searchableAs())
+            ->newSearch($indexName)
             ->properties($properties)
             ->queryString($builder->query);
 
@@ -118,11 +171,13 @@ class ElasticsearchEngine extends Engine
 
         $limit = $builder->limit ? $builder->limit : 10;
 
+        $indexName = config('scout.prefix') . $model->getTable();
+
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
 
         $newSearch = $this->sigmie
-            ->newSearch($model->searchableAs())
+            ->newSearch($indexName)
             ->properties($properties)
             ->queryString($builder->query);
 
@@ -173,7 +228,7 @@ class ElasticsearchEngine extends Engine
 
     public function flush($model)
     {
-        $indexName = $model->searchableAs();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $this->sigmie->collect($indexName)->clear();
     }

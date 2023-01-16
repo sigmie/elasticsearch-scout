@@ -1,19 +1,17 @@
 <?php
 
 return [
-
+    'hosts' => ENV('ELASTICSEARCH_HOSTS', '127.0.0.1:9200'),
     'auth' => [
-        'type' => 'none',
-        'user' => 'user',
-        'password' => 'pass',
-        'token' => 'token',
-        'headers' => [
-            'Authorization' => "auth"
-        ]
+        'type' => env('ELASTICSEARCH_AUTH_TYPE', 'none'),
+        'user' => env('ELASTICSEARCH_USER', ''),
+        'password' => env('ELASTICSEARCH_PASSWORD', ''),
+        'token' => env('ELASTICSEARCH_TOKEN', ''),
+        'headers' => [],
     ],
-
-    'hosts' => ['127.0.0.1:9200'],
-
-    'guzzle_config' => []
-
+    'guzzle_config' => [
+        'allow_redirects' => false,
+        'http_errors' => false,
+        'connect_timeout' => 15,
+    ]
 ];

@@ -2,8 +2,10 @@
 
 namespace Sigmie\ElasticsearchScout;
 
+use Illuminate\Support\Facades\Config;
 use Laravel\Scout\EngineManager;
 use Sigmie\Base\Http\ElasticsearchConnection;
+use Sigmie\ElasticsearchScout\Commands\SyncIndexSettingsCommand;
 use Sigmie\Http\JSONClient;
 use Sigmie\Sigmie;
 use Spatie\LaravelPackageTools\Package;
@@ -15,9 +17,14 @@ class ElasticsearchScoutServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('elasticsearch-scout')
+            ->hasCommand(SyncIndexSettingsCommand::class)
             ->hasConfigFile();
 
+
         resolve(EngineManager::class)->extend('elasticsearch', function ($app) {
+
+            Config::set('scout.elasticsearch.index-settings', config('elasticsearch-scout.index-settings'));
+
             $hosts = config('elasticsearch-scout.hosts');
             $auth = config('elasticsearch-scout.auth');
             $config = config('elasticsearch-scout.guzzle_config');

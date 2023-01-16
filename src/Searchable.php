@@ -22,6 +22,12 @@ trait Searchable
         //
     }
 
+    public function searchableAs()
+    {
+        return static::class;
+    }
+
+
     public function elasticsearchIndex(NewIndex $newIndex)
     {
         $newIndex->tokenizeOnWordBoundaries()
