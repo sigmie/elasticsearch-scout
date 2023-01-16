@@ -17,7 +17,7 @@ class ElasticsearchScoutServiceProvider extends PackageServiceProvider
             ->name('elasticsearch-scout')
             ->hasConfigFile();
 
-        resolve(EngineManager::class)->extend('elasticsearch-scout', function ($app) {
+        resolve(EngineManager::class)->extend('elasticsearch', function ($app) {
             $hosts = config('elasticsearch-scout.hosts');
             $auth = config('elasticsearch-scout.auth');
             $config = config('elasticsearch-scout.guzzle_config');
