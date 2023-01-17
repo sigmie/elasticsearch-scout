@@ -34,8 +34,8 @@ class ElasticsearchEngine extends Engine
                 $model->elasticsearchProperties($properties);
 
                 $update->properties($properties)
-                    ->shards(config('elasticsearch-scout.index-settings.replicas'))
-                    ->replicas(config('elasticsearch-scout.index-settings.replicas'));
+                    ->shards((int) config('elasticsearch-scout.index-settings.replicas'))
+                    ->replicas((int)config('elasticsearch-scout.index-settings.replicas'));
 
                 $model->elasticsearchIndex($update);
 
@@ -94,8 +94,8 @@ class ElasticsearchEngine extends Engine
         $newIndex = $this->sigmie
             ->newIndex($indexName)
             ->properties($properties)
-            ->shards(config('elasticsearch-scout.index-settings.replicas'))
-            ->replicas(config('elasticsearch-scout.index-settings.replicas'));
+            ->shards((int)config('elasticsearch-scout.index-settings.replicas'))
+            ->replicas((int)config('elasticsearch-scout.index-settings.replicas'));
 
         $model->elasticsearchIndex($newIndex);
 
