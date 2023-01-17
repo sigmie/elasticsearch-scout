@@ -4,7 +4,7 @@
 [![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/sigmie/elasticsearch-scout/run-tests?label=tests)](https://github.com/sigmie/elasticsearch-scout/actions?query=workflow%3ATests+branch%3Amaster)
 [![Total Downloads](https://img.shields.io/packagist/dt/sigmie/elasticsearch-scout.svg?style=flat-square)](https://packagist.org/packages/sigmie/elasticsearch-scout)
 
-The Scout adapter for Elasticsearch by Sigmie is a easy to use ElasticSearch driver for Laravel Scount. It allows you to create awesome search experiences
+The Scout adapter for Elasticsearch by Sigmie is a easy to use ElasticSearch driver for Laravel Scout. It allows you to create awesome search experiences
 without being an ElasticSearch expert.
 
 
