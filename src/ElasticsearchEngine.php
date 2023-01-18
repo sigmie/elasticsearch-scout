@@ -154,7 +154,7 @@ class ElasticsearchEngine extends Engine
         $newSearch = $this->sigmie
             ->newSearch($indexName)
             ->properties($properties)
-            ->queryString($builder->query);
+            ->queryString($builder->query ?? '');
 
         $model->elasticsearchSearch($newSearch);
 
@@ -179,7 +179,7 @@ class ElasticsearchEngine extends Engine
         $newSearch = $this->sigmie
             ->newSearch($indexName)
             ->properties($properties)
-            ->queryString($builder->query);
+            ->queryString($builder->query ?? '');
 
         $model->elasticsearchSearch($newSearch);
 
