@@ -169,8 +169,6 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
-        $limit = $builder->limit ? $builder->limit : 10;
-
         $indexName = config('scout.prefix') . $model->getTable();
 
         $properties = new NewProperties;
@@ -184,7 +182,7 @@ class ElasticsearchEngine extends Engine
         $model->elasticsearchSearch($newSearch);
 
         $res = $newSearch
-            ->size($limit)
+            ->size($perPage)
             ->from($perPage * ($page - 1))
             ->get()
             ->json('hits');
