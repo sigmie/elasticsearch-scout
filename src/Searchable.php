@@ -15,7 +15,7 @@ trait Searchable
 
     use ScoutSearchable;
 
-    abstract public function elasticsearchProperties(NewProperties $blueprint);
+    abstract public function elasticsearchProperties(NewProperties $newProperties);
 
     public function elasticsearchSearch(NewSearch $newSearch)
     {
