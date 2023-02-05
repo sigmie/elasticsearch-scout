@@ -17,33 +17,38 @@ class ElasticsearchScoutServiceProvider extends PackageServiceProvider
     {
         $package
             ->name('elasticsearch-scout')
+            ->hasRoutes('elasticsearch-scout')
             ->hasCommand(SyncIndexSettingsCommand::class)
             ->hasConfigFile();
 
+        $this->app->singleton(Sigmie::class, fn () => $this->makeSigmie());
 
-        resolve(EngineManager::class)->extend('elasticsearch', function ($app) {
+        resolve(EngineManager::class)->extend(
+            'elasticsearch',
+            fn ($app) => new ElasticsearchEngine($app->make(Sigmie::class))
+        );
+    }
 
-            Config::set('scout.elasticsearch.index-settings', config('elasticsearch-scout.index-settings'));
+    private function makeSigmie(): Sigmie
+    {
+        Config::set('scout.elasticsearch.index-settings', config('elasticsearch-scout.index-settings'));
 
-            $hosts = config('elasticsearch-scout.hosts');
-            $auth = config('elasticsearch-scout.auth');
-            $config = config('elasticsearch-scout.guzzle_config');
+        $hosts = config('elasticsearch-scout.hosts');
+        $auth = config('elasticsearch-scout.auth');
+        $config = config('elasticsearch-scout.guzzle_config');
 
-            $hosts = str_contains($hosts, ',') ? explode(',', $hosts) : [$hosts];
+        $hosts = str_contains($hosts, ',') ? explode(',', $hosts) : [$hosts];
 
-            $jsonClient = match ($auth['type']) {
-                'none' => JSONClient::create($hosts, $config),
-                'basic' => JSONClient::createWithBasic($hosts, $auth['user'], $auth['password'], $config),
-                'token' => JSONClient::createWithToken($hosts, $auth['token'], $config),
-                'headers' => JSONClient::createWithHeaders($hosts, $auth['headers'], $config),
-                default => JSONClient::create($hosts, $config)
-            };
+        $jsonClient = match ($auth['type']) {
+            'none' => JSONClient::create($hosts, $config),
+            'basic' => JSONClient::createWithBasic($hosts, $auth['user'], $auth['password'], $config),
+            'token' => JSONClient::createWithToken($hosts, $auth['token'], $config),
+            'headers' => JSONClient::createWithHeaders($hosts, $auth['headers'], $config),
+            default => JSONClient::create($hosts, $config)
+        };
 
-            $elasticsearchConnection = new ElasticsearchConnection($jsonClient);
+        $elasticsearchConnection = new ElasticsearchConnection($jsonClient);
 
-            $sigmie = new Sigmie($elasticsearchConnection);
-
-            return new ElasticsearchEngine($sigmie);
-        });
+        return new Sigmie($elasticsearchConnection);
     }
 }

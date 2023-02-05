@@ -22,7 +22,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $properties = new NewProperties;
 
@@ -35,7 +35,7 @@ class ElasticsearchEngine extends Engine
 
                 $update->properties($properties)
                     ->shards((int) config('elasticsearch-scout.index-settings.replicas'))
-                    ->replicas((int)config('elasticsearch-scout.index-settings.replicas'));
+                    ->replicas((int) config('elasticsearch-scout.index-settings.replicas'));
 
                 $model->elasticsearchIndex($update);
 
@@ -43,10 +43,9 @@ class ElasticsearchEngine extends Engine
             });
     }
 
-
     public function deleteAllIndexes()
     {
-        $prefix = config('scout.prefix') . '*';
+        $prefix = config('scout.prefix').'*';
 
         $indices = $this->sigmie->indices($prefix);
 
@@ -79,11 +78,11 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $index = $this->sigmie->index($indexName);
 
-        if (!is_null($index)) {
+        if (! is_null($index)) {
             throw new Exception("Index {$indexName} already exists.");
         }
 
@@ -94,8 +93,8 @@ class ElasticsearchEngine extends Engine
         $newIndex = $this->sigmie
             ->newIndex($indexName)
             ->properties($properties)
-            ->shards((int)config('elasticsearch-scout.index-settings.replicas'))
-            ->replicas((int)config('elasticsearch-scout.index-settings.replicas'));
+            ->shards((int) config('elasticsearch-scout.index-settings.replicas'))
+            ->replicas((int) config('elasticsearch-scout.index-settings.replicas'));
 
         $model->elasticsearchIndex($newIndex);
 
@@ -106,7 +105,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $index = $this->sigmie->index($indexName);
 
@@ -115,7 +114,7 @@ class ElasticsearchEngine extends Engine
 
     public function update($models)
     {
-        $indexName = config('scout.prefix') . $models->first()->getTable();
+        $indexName = config('scout.prefix').$models->first()->getTable();
 
         $docs = $models
             ->filter(fn ($model) => empty($model->toSearchableArray()) === false)
@@ -130,7 +129,7 @@ class ElasticsearchEngine extends Engine
 
     public function delete($models)
     {
-        $indexName = config('scout.prefix') . $models->first()->getTable();
+        $indexName = config('scout.prefix').$models->first()->getTable();
 
         $ids = $models
             ->map(fn ($model) => $model->getScoutKey())
@@ -144,7 +143,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $limit = $builder->limit ? $builder->limit : 10;
 
@@ -158,9 +157,13 @@ class ElasticsearchEngine extends Engine
 
         $model->elasticsearchSearch($newSearch);
 
-        $res = $newSearch->size($limit)
-            ->get()
-            ->json('hits');
+        $search = $newSearch->size($limit);
+
+        if (! is_null($builder->callback)) {
+            ($builder->callback)($search);
+        }
+
+        $res = $search->get()->json('hits');
 
         return $res;
     }
@@ -169,7 +172,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
@@ -226,7 +229,7 @@ class ElasticsearchEngine extends Engine
 
     public function flush($model)
     {
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $this->sigmie->collect($indexName)->clear();
     }
