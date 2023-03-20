@@ -4,8 +4,6 @@ namespace Sigmie\ElasticsearchScout\Commands;
 
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use Laravel\Scout\EngineManager;
 
 class SyncIndexSettingsCommand extends Command
@@ -41,7 +39,7 @@ class SyncIndexSettingsCommand extends Command
 
             $engine->updateIndexSettings($indexName = $this->argument('name'), $settings);
 
-            $this->info('Settings for the [' . $indexName . '] index synced successfully.');
+            $this->info('Settings for the ['.$indexName.'] index synced successfully.');
         } catch (Exception $exception) {
             $this->error($exception->getMessage());
         }

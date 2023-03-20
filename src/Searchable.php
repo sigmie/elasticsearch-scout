@@ -27,7 +27,6 @@ trait Searchable
         return static::class;
     }
 
-
     public function elasticsearchIndex(NewIndex $newIndex)
     {
         $newIndex->tokenizeOnWordBoundaries()

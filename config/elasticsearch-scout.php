@@ -17,5 +17,5 @@ return [
     'index-settings' => [
         'shards' => env('ELASTICSEARCH_INDEX_SHARDS', 1),
         'replicas' => env('ELASTICSEARCH_INDEX_REPLICAS', 2),
-    ]
+    ],
 ];
