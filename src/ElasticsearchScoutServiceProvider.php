@@ -3,6 +3,7 @@
 namespace Sigmie\ElasticsearchScout;
 
 use Illuminate\Support\Facades\Config;
+use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
 use Sigmie\Base\Http\ElasticsearchConnection;
 use Sigmie\ElasticsearchScout\Commands\SyncIndexSettingsCommand;
@@ -15,6 +16,10 @@ class ElasticsearchScoutServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
+        Builder::macro('completions', function () {
+            return static::raw()->completions();
+        });
+
         $package
             ->name('elasticsearch-scout')
             ->hasRoutes('elasticsearch-scout')

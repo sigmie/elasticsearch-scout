@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace Sigmie\ElasticsearchScout;
 
 use Exception;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Collection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
+use Sigmie\Base\Http\Responses\Search;
 use Sigmie\Document\Document;
+use Sigmie\Index\AliasedIndex;
 use Sigmie\Index\UpdateIndex;
 use Sigmie\Mappings\NewProperties;
 use Sigmie\Sigmie;
@@ -22,30 +26,36 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
-        $properties = new NewProperties;
+        $index = $this->sigmie
+            ->index($indexName);
 
-        $this->sigmie
-            ->index($indexName)
-            ->update(function (UpdateIndex $update) use ($model) {
+        if ($index instanceof AliasedIndex) {
+
+            $index->update(function (UpdateIndex $update) use ($model) {
                 $properties = new NewProperties;
 
                 $model->elasticsearchProperties($properties);
 
                 $update->properties($properties)
-                    ->shards((int) config('elasticsearch-scout.index-settings.replicas'))
+                    ->shards((int) config('elasticsearch-scout.index-settings.shards'))
                     ->replicas((int) config('elasticsearch-scout.index-settings.replicas'));
 
                 $model->elasticsearchIndex($update);
 
                 return $update;
             });
+
+            return;
+        }
+
+        throw new Exception("Failed to update an Index without an alias. Please make sure to run scout:index before executing scout:import.");
     }
 
     public function deleteAllIndexes()
     {
-        $prefix = config('scout.prefix').'*';
+        $prefix = config('scout.prefix') . '*';
 
         $indices = $this->sigmie->indices($prefix);
 
@@ -56,8 +66,9 @@ class ElasticsearchEngine extends Engine
 
     public function lazyMap(Builder $builder, $results, $model)
     {
-        $ids = array_map(fn ($hit) => $hit['_id'], $results['hits']);
-        $hits = collect($results['hits'])->mapWithKeys(fn ($hit) => [$hit['_id'] => $hit]);
+        $hits = $results->json('hits.hits');
+        $ids = array_map(fn ($hit) => $hit['_id'], $hits);
+        $hits = collect($hits)->mapWithKeys(fn ($hit) => [$hit['_id'] => $hit]);
 
         $models = $model->getScoutModelsByIds(
             $builder,
@@ -78,11 +89,11 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $index = $this->sigmie->index($indexName);
 
-        if (! is_null($index)) {
+        if (!is_null($index)) {
             throw new Exception("Index {$indexName} already exists.");
         }
 
@@ -93,7 +104,7 @@ class ElasticsearchEngine extends Engine
         $newIndex = $this->sigmie
             ->newIndex($indexName)
             ->properties($properties)
-            ->shards((int) config('elasticsearch-scout.index-settings.replicas'))
+            ->shards((int) config('elasticsearch-scout.index-settings.shards'))
             ->replicas((int) config('elasticsearch-scout.index-settings.replicas'));
 
         $model->elasticsearchIndex($newIndex);
@@ -105,7 +116,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $index = $this->sigmie->index($indexName);
 
@@ -114,22 +125,21 @@ class ElasticsearchEngine extends Engine
 
     public function update($models)
     {
-        $indexName = config('scout.prefix').$models->first()->getTable();
+        $indexName = config('scout.prefix') . $models->first()->getTable();
 
         $docs = $models
             ->filter(fn ($model) => empty($model->toSearchableArray()) === false)
-            ->map(function ($model) {
-                $id = $model->id;
+            ->map(
+                fn ($model) =>
+                new Document($model->toSearchableArray(), (string) $model->id)
+            )->toArray();
 
-                return new Document($model->toSearchableArray(), (string) $id);
-            })->toArray();
-
-        $res = $this->sigmie->collect($indexName, true)->merge($docs);
+        $this->sigmie->collect($indexName, true)->merge($docs);
     }
 
     public function delete($models)
     {
-        $indexName = config('scout.prefix').$models->first()->getTable();
+        $indexName = config('scout.prefix') . $models->first()->getTable();
 
         $ids = $models
             ->map(fn ($model) => $model->getScoutKey())
@@ -143,9 +153,19 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $limit = $builder->limit ? $builder->limit : 10;
+
+        $whereIns = collect($builder->whereIns)
+            ->map(fn ($vals, $field) => "{$field}:['" . implode('\',\'', $vals) . "']")
+            ->values();
+
+        $wheres = collect($builder->wheres)
+            ->map(fn ($val, $field) => "{$field}:'{$val}'")
+            ->values();
+
+        $filters = $whereIns->merge($wheres)->implode(' AND ');
 
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
@@ -153,26 +173,25 @@ class ElasticsearchEngine extends Engine
         $newSearch = $this->sigmie
             ->newSearch($indexName)
             ->properties($properties)
+            ->filters($filters)
             ->queryString($builder->query ?? '');
-
-        $model->elasticsearchSearch($newSearch);
 
         $search = $newSearch->size($limit);
 
-        if (! is_null($builder->callback)) {
+        $model->elasticsearchSearch($newSearch);
+
+        if (!is_null($builder->callback)) {
             ($builder->callback)($search);
         }
 
-        $res = $search->get()->json('hits');
-
-        return $res;
+        return $search->get();
     }
 
     public function paginate(Builder $builder, $perPage, $page)
     {
         $model = $builder->model;
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
@@ -195,15 +214,25 @@ class ElasticsearchEngine extends Engine
 
     public function mapIds($results)
     {
-        $ids = array_map(fn ($hit) => $hit['_id'], $results['hits']);
+        $hits = $results->json('hits.hits');
+
+        $ids = array_map(fn ($hit) => $hit['_id'], $hits);
 
         return collect($ids);
     }
 
+    /**
+     *
+     * @param Builder $builder
+     * @param Search $results
+     * @param Model $model
+     * @return Collection
+     */
     public function map(Builder $builder, $results, $model)
     {
-        $ids = array_map(fn ($hit) => $hit['_id'], $results['hits']);
-        $hits = collect($results['hits'])->mapWithKeys(fn ($hit) => [$hit['_id'] => $hit]);
+        $hits = $results->json('hits.hits');
+        $ids = array_map(fn ($hit) => $hit['_id'], $hits);
+        $hits = collect($hits)->mapWithKeys(fn ($hit) => [$hit['_id'] => $hit]);
 
         $models = $model->getScoutModelsByIds(
             $builder,
@@ -222,14 +251,19 @@ class ElasticsearchEngine extends Engine
         return  $models;
     }
 
+    /**
+     *
+     * @param Search $results
+     * @return int
+     */
     public function getTotalCount($results)
     {
-        return $results['total']['value'];
+        return $results->total();
     }
 
     public function flush($model)
     {
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $this->sigmie->collect($indexName)->clear();
     }
