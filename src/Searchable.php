@@ -11,9 +11,9 @@ use Sigmie\Search\NewSearch;
 
 trait Searchable
 {
-    public readonly array $hit;
-
     use ScoutSearchable;
+
+    public readonly array $hit;
 
     abstract public function elasticsearchProperties(NewProperties $newProperties);
 

@@ -22,6 +22,8 @@ class CommandsTest extends TestCase
 
         $indexName = config('scout.prefix') . $product->getTable();
 
+        $this->sigmie->refresh($indexName);
+
         $this->assertEquals(1, $this->sigmie->collect($indexName)->count());
     }
 

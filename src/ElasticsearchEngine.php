@@ -7,6 +7,7 @@ namespace Sigmie\ElasticsearchScout;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\LazyCollection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
 use Sigmie\Base\Http\Responses\Search;
@@ -68,21 +69,24 @@ class ElasticsearchEngine extends Engine
     {
         $hits = $results->json('hits.hits');
         $ids = array_map(fn ($hit) => $hit['_id'], $hits);
-        $hits = collect($hits)->mapWithKeys(fn ($hit) => [$hit['_id'] => $hit]);
 
         $models = $model->getScoutModelsByIds(
             $builder,
             $ids
-        )->map(function ($model) use ($hits) {
-            $hit = $hits[$model->id];
+        )
+            ->map(function ($model) use ($hits) {
+                $hit = $hits[$model->id];
 
-            $model->hit($hit);
+                $model->hit($hit);
 
-            return  $model;
-        })->sortByDesc(fn ($model) => (float) $model->hit['_score'])
+                return  $model;
+            })
+            ->sortByDesc(
+                fn ($model) => (float) $model->hit['_score']
+            )
             ->values();
 
-        return  $models;
+        return $models;
     }
 
     public function createIndex($model, array $options = [])
@@ -134,7 +138,7 @@ class ElasticsearchEngine extends Engine
                 new Document($model->toSearchableArray(), (string) $model->id)
             )->toArray();
 
-        $this->sigmie->collect($indexName, true)->merge($docs);
+        $this->sigmie->collect($indexName)->merge($docs);
     }
 
     public function delete($models)
