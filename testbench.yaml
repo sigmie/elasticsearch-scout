@@ -1,0 +1,8 @@
+providers:
+  - Sigmie\ElasticsearchScout\ElasticsearchScoutServiceProvider
+
+migrations:
+  - workbench/database/migrations
+
+seeders:
+  - Workbench\Database\Seeders\DatabaseSeeder

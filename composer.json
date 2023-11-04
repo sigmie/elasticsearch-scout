@@ -18,14 +18,15 @@
     ],
     "require": {
         "php": "^8.0",
-        "laravel/scout": "^9.0",
+        "laravel/scout": "^10.0",
         "sigmie/sigmie": ">=1",
         "spatie/laravel-package-tools": "^1.1"
     },
     "require-dev": {
+        "orchestra/testbench": "^8.14",
         "phpstan/phpstan": "^1.9",
-        "orchestra/testbench": "^6.0",
         "phpunit/phpunit": "^9.3",
+        "sigmie/testing": "^1.0",
         "spatie/laravel-ray": "^1.9"
     },
     "autoload": {
@@ -36,16 +37,37 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Sigmie\\ElasticsearchScout\\Tests\\": "tests"
+            "Sigmie\\ElasticsearchScout\\Tests\\": "tests",
+            "Workbench\\App\\": "workbench/app/",
+            "Workbench\\Database\\Factories\\": "workbench/database/factories/",
+            "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
     },
     "scripts": {
         "psalm": "vendor/bin/psalm",
         "test": "vendor/bin/phpunit --colors=always",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "post-autoload-dump": [
+            "@clear",
+            "@prepare"
+        ],
+        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "serve": [
+            "Composer\\Config::disableProcessTimeout",
+            "@build",
+            "@php vendor/bin/testbench serve"
+        ],
+        "lint": [
+            "@php vendor/bin/phpstan analyse"
+        ]
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "extra": {
         "laravel": {
