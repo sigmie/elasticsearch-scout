@@ -1,34 +1,40 @@
-# Laravel Scout adapter for Elasticsearch
+<p align="center"><a href="https://sigmie.com" target="_blank"><img width="400" src="https://github.com/sigmie/art/blob/main/logo/png/logo-full-black.png?raw=true"></a></p>
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/sigmie/elasticsearch-scout.svg?style=flat-square)](https://packagist.org/packages/sigmie/elasticsearch-scout)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/sigmie/elasticsearch-scout/run-tests?label=tests)](https://github.com/sigmie/elasticsearch-scout/actions?query=workflow%3ATests+branch%3Amaster)
-[![Total Downloads](https://img.shields.io/packagist/dt/sigmie/elasticsearch-scout.svg?style=flat-square)](https://packagist.org/packages/sigmie/elasticsearch-scout)
+<p align="center">
 
-The Scout adapter for Elasticsearch by Sigmie is a easy to use ElasticSearch driver for Laravel Scout. It allows you to create awesome search experiences
-without being an ElasticSearch expert.
+<a href="https://github.com/sigmie/elasticsearch-scout/actions">
+<img src="https://github.com/sigmie/elasticsearch-scout/actions/workflows/tests.yml/badge.svg" alt="Build Status">
+</a>
+
+<a href="https://packagist.org/packages/sigmie/elasticsearch-scout">
+  <img src="https://img.shields.io/packagist/v/sigmie/elasticsearch-scout" alt="Latest Stable Version">
+</a>
+
+<a href="https://packagist.org/packages/sigmie/elasticsearch-scout/stats">
+  <img src="https://img.shields.io/packagist/dt/sigmie/elasticsearch-scout.svg" alt="Downloads">
+</a>
 
 
-## Official Documentation
+<a href="https://codecov.io/gh/sigmie/elasticsearch-scout">
+  <img alt="Codecov" src="https://codecov.io/gh/sigmie/elasticsearch-scout/branch/master/graph/badge.svg?token=Dx6x8vPVN8">
+</a>
 
-Documentation for ElasticSearch Scout can be found on the [Sigmie website](https://sigmie.com/docs/v0/laravel-scout).
+<a href="https://packagist.org/packages/sigmie/elasticsearch-scout">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"/>
+</a>
+</p>
 
-## Changelog
+</p>
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+## Elasticsearch Scout by Sigmie
+
+You can find the documentation on the [website](https://sigmie.com).
 
 ## Contributing
+ Thank you for considering contributing to the Sigmie. The main purpose of this repository is to make Elasticsearch easier to use with PHP. We would be grateful to the community for contributing bugfixes and improvements. So feel free to open a pull request.
 
-Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [nicoorfi](https://github.com/nicoorfi)
-- [All Contributors](../../contributors)
+## Contact
+ For any question regarding this project feel free to send an e-mail to nico@sigmie.com.
 
 ## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The **Sigmie** library is an open-source software licensed under the [MIT license](https://choosealicense.com/licenses/mit).

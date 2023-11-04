@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="Sigmie\ElasticsearchScout\Tests\CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" tests="4" assertions="9" errors="0" warnings="0" failures="0" skipped="0" time="1.143626">
-    <testcase name="import" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="16" assertions="1" time="0.448481"/>
-    <testcase name="create_index" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="30" assertions="2" time="0.176551"/>
-    <testcase name="delete_index" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="44" assertions="2" time="0.220163"/>
-    <testcase name="delete_all_indices" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="60" assertions="4" time="0.298431"/>
+  <testsuite name="" tests="6" assertions="12" errors="0" warnings="0" failures="0" skipped="0" time="1.615165">
+    <testsuite name="Sigmie Test Suite" tests="6" assertions="12" errors="0" warnings="0" failures="0" skipped="0" time="1.615165">
+      <testsuite name="Sigmie\ElasticsearchScout\Tests\CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" tests="5" assertions="11" errors="0" warnings="0" failures="0" skipped="0" time="1.441998">
+        <testcase name="import" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="17" assertions="1" time="0.442447"/>
+        <testcase name="create_index" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="31" assertions="2" time="0.178604"/>
+        <testcase name="delete_index" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="45" assertions="2" time="0.187953"/>
+        <testcase name="delete_all_indices" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="61" assertions="4" time="0.397203"/>
+        <testcase name="flush" class="Sigmie\ElasticsearchScout\Tests\CommandsTest" classname="Sigmie.ElasticsearchScout.Tests.CommandsTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/CommandsTest.php" line="82" assertions="2" time="0.235791"/>
+      </testsuite>
+      <testsuite name="Sigmie\ElasticsearchScout\Tests\SearchTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/SearchTest.php" tests="1" assertions="1" errors="0" warnings="0" failures="0" skipped="0" time="0.173167">
+        <testcase name="foo" class="Sigmie\ElasticsearchScout\Tests\SearchTest" classname="Sigmie.ElasticsearchScout.Tests.SearchTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/SearchTest.php" line="15" assertions="1" time="0.173167"/>
+      </testsuite>
+    </testsuite>
   </testsuite>
 </testsuites>

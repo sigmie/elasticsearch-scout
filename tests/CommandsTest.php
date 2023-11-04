@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sigmie\ElasticsearchScout\Tests;
 
 use Illuminate\Support\Facades\Artisan;
+use Sigmie\Document\Document;
 use Workbench\App\Models\Post;
 use Workbench\App\Models\Product;
 
@@ -39,8 +40,8 @@ class CommandsTest extends TestCase
     }
 
     /**
-    * @test
-    */
+     * @test
+     */
     public function delete_index()
     {
         $indexName = config('scout.prefix') . (new Product())->getTable();
@@ -55,8 +56,8 @@ class CommandsTest extends TestCase
     }
 
     /**
-    * @test
-    */
+     * @test
+     */
     public function delete_all_indices()
     {
         $productIndexName = config('scout.prefix') . (new Product())->getTable();
@@ -73,5 +74,27 @@ class CommandsTest extends TestCase
 
         $this->assertIndexNotExists($productIndexName);
         $this->assertIndexNotExists($postIndexName);
+    }
+
+    /**
+     * @test
+     */
+    public function flush()
+    {
+        $product = Product::factory()->create();
+
+        $indexName = config('scout.prefix') . $product->getTable();
+
+        $this->sigmie->collect($indexName, true)->merge([
+            new Document($product->toSearchableArray(), (string) $product->id)
+        ]);
+
+        $this->assertEquals(1, $this->sigmie->collect($indexName)->count());
+
+        Artisan::call('scout:flush', ['model' => Product::class]);
+
+        $this->sigmie->refresh($indexName);
+
+        $this->assertEquals(0, $this->sigmie->collect($indexName)->count());
     }
 }
