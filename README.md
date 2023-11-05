@@ -1,4 +1,4 @@
-<p align="center"><a href="https://sigmie.com" target="_blank"><img width="400" src="https://github.com/sigmie/art/blob/main/logo/png/logo-full-black.png?raw=true"></a></p>
+<p align="center"><a href="https://sigmie.com" target="_blank"><img width="400" src="https://github.com/sigmie/art/blob/main/banners/elasticsearch-scout.png?raw=true"></a></p>
 
 <p align="center">
 
@@ -16,7 +16,7 @@
 
 
 <a href="https://codecov.io/gh/sigmie/elasticsearch-scout">
-  <img alt="Codecov" src="https://codecov.io/gh/sigmie/elasticsearch-scout/branch/master/graph/badge.svg?token=Dx6x8vPVN8">
+  <img alt="Codecov" src="https://codecov.io/gh/sigmie/elasticsearch-scout/graph/badge.svg?token=qSggT3iAaw">
 </a>
 
 <a href="https://packagist.org/packages/sigmie/elasticsearch-scout">

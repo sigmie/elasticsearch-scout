@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Sigmie\ElasticsearchScout;
 
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\LazyCollection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
+use Psr\Container\NotFoundExceptionInterface;
+use Psr\Container\ContainerExceptionInterface;
 use Sigmie\Base\Http\Responses\Search;
 use Sigmie\Document\Document;
 use Sigmie\Index\AliasedIndex;
@@ -69,11 +72,17 @@ class ElasticsearchEngine extends Engine
     {
         $hits = $results->json('hits.hits');
         $ids = array_map(fn ($hit) => $hit['_id'], $hits);
+        $hits = collect($hits)->mapWithKeys(fn ($hit) => [$hit['_id'] => $hit]);
 
-        $models = $model->getScoutModelsByIds(
+        if (count($hits) === 0) {
+            return LazyCollection::make($model->newCollection());
+        }
+
+        $models = $model->queryScoutModelsByIds(
             $builder,
             $ids
         )
+            ->cursor()
             ->map(function ($model) use ($hits) {
                 $hit = $hits[$model->id];
 
@@ -191,6 +200,13 @@ class ElasticsearchEngine extends Engine
         return $search->get();
     }
 
+    /**
+     * @param Builder $builder
+     * @param int $perPage
+     * @param int $page
+     *
+     * @return Search
+     */
     public function paginate(Builder $builder, $perPage, $page)
     {
         $model = $builder->model;
@@ -207,13 +223,10 @@ class ElasticsearchEngine extends Engine
 
         $model->elasticsearchSearch($newSearch);
 
-        $res = $newSearch
+        return $newSearch
             ->size($perPage)
             ->from($perPage * ($page - 1))
-            ->get()
-            ->json('hits');
-
-        return $res;
+            ->get();
     }
 
     public function mapIds($results)

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sigmie\ElasticsearchScout\Tests;
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\LazyCollection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
 use Sigmie\Document\Document;
@@ -103,5 +104,157 @@ class ElasticsearchEngineTest extends TestCase
         $mapped = $engine->map(new Builder($model, ''), $searchResponse, $model);
 
         $mapped->each(fn (Product $product) => $this->assertInstanceOf(Product::class, $product));
+    }
+
+    /**
+     * @test
+     */
+    public function lazy_map()
+    {
+        $model = new Product();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $products = Product::factory()->count(5)->create();
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        $engine->update($products);
+
+        $this->sigmie->refresh($indexName);
+
+        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+
+        $mapped = $engine->lazyMap(new Builder($model, ''), $searchResponse, $model);
+
+        $this->assertInstanceOf(LazyCollection::class, $mapped);
+
+        $mapped->each(fn (Product $product) => $this->assertInstanceOf(Product::class, $product));
+    }
+
+    /**
+     * @test
+     */
+    public function total_count()
+    {
+        $model = new Product();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $products = Product::factory()->count(5)->create();
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        $engine->update($products);
+
+        $this->sigmie->refresh($indexName);
+
+        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+
+        $count = $engine->getTotalCount($searchResponse);
+
+        $this->assertEquals(5, $count);
+    }
+
+    /**
+     * @test
+     */
+    public function map_ids()
+    {
+        $model = new Product();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $products = Product::factory()->count(5)->create();
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        $engine->update($products);
+
+        $this->sigmie->refresh($indexName);
+
+        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+
+        $mapIds = $engine->mapIds($searchResponse);
+
+        $ids = Product::pluck('id');
+
+        $this->assertEquals($ids, $mapIds);
+    }
+
+    /**
+     * @test
+     */
+    public function paginate()
+    {
+        $model = new Product();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $products = Product::factory()->count(5)->create();
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        $engine->update($products);
+
+        $this->sigmie->refresh($indexName);
+
+        $searchResponse = $engine->paginate(new Builder($model, ''), perPage: 3, page: 1);
+
+        $this->assertCount(3, $searchResponse->hits());
+
+        $searchResponse = $engine->paginate(new Builder($model, ''), perPage: 3, page: 2);
+
+        $this->assertCount(2, $searchResponse->hits());
+    }
+
+    /**
+     * @test
+     */
+    public function create_index()
+    {
+        $model = new Product();
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $this->assertIndexExists($indexName);
+    }
+
+    /**
+     * @test
+     */
+    public function delete_index()
+    {
+        $model = new Product();
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $this->assertIndexExists($indexName);
+
+        $engine->deleteIndex($model);
+
+        $this->assertIndexNotExists($indexName);
     }
 }
