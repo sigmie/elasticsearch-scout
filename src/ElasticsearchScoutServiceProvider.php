@@ -16,10 +16,6 @@ class ElasticsearchScoutServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
-        Builder::macro('completions', function () {
-            return static::raw()->completions();
-        });
-
         $package
             ->name('elasticsearch-scout')
             ->hasRoutes('elasticsearch-scout')
@@ -27,6 +23,8 @@ class ElasticsearchScoutServiceProvider extends PackageServiceProvider
             ->hasConfigFile();
 
         $this->app->singleton(Sigmie::class, fn () => $this->makeSigmie());
+
+        $this->app->alias(Sigmie::class, 'sigmie');
 
         resolve(EngineManager::class)->extend(
             'elasticsearch',

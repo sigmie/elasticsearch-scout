@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Sigmie\ElasticsearchScout\Tests;
 
-use Illuminate\Support\Facades\Artisan;
 use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
 use Sigmie\Base\Http\Responses\Search;
 use Sigmie\ElasticsearchScout\ElasticsearchEngine;
 use Workbench\App\Models\Product;
-use Workbench\Database\Factories\ProductFactory;
 
 class SearchTest extends TestCase
 {
@@ -28,7 +26,7 @@ class SearchTest extends TestCase
 
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $engine->update($products);
 
@@ -51,13 +49,13 @@ class SearchTest extends TestCase
 
         $engine->createIndex($model);
 
-        $products = Product::factory()->count(5)->create(['category' => 'offer']);
+        $products = Product::factory()->count(5)->create();
 
         $product = Product::factory()->create([
-            'category' => 'new'
+            'category' => 'new',
         ]);
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $engine->update($products);
 
@@ -65,6 +63,102 @@ class SearchTest extends TestCase
 
         $builder = new Builder($model, '');
         $builder->where('category', 'new');
+
+        $searchResponse = $engine->search($builder);
+
+        $this->assertCount(1, $searchResponse->hits());
+        $this->assertInstanceOf(Search::class, $searchResponse);
+    }
+
+    /**
+     * @test
+     */
+    public function where_ins()
+    {
+        $model = new Product();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $products = collect([
+            Product::factory()->create([
+                'category' => 'offers',
+            ]),
+            Product::factory()->create([
+                'category' => 'new',
+            ]),
+        ]);
+
+        $indexName = config('scout.prefix').$model->getTable();
+
+        $engine->update($products);
+
+        $this->sigmie->refresh($indexName);
+
+        $builder = new Builder($model, '');
+        $builder->whereIn('category', ['new', 'offers']);
+
+        $searchResponse = $engine->search($builder);
+
+        $this->assertCount(2, $searchResponse->hits());
+        $this->assertInstanceOf(Search::class, $searchResponse);
+
+        $builder = new Builder($model, '');
+        $builder->whereIn('category', []);
+
+        $searchResponse = $engine->search($builder);
+
+        $this->assertCount(0, $searchResponse->hits());
+        $this->assertInstanceOf(Search::class, $searchResponse);
+    }
+
+    /**
+     * @test
+     */
+    public function where_not_ins()
+    {
+        $model = new Product();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $products = collect([
+            Product::factory()->create([
+                'category' => 'offers',
+            ]),
+            Product::factory()->create([
+                'category' => 'new',
+            ]),
+        ]);
+
+        $indexName = config('scout.prefix').$model->getTable();
+
+        $engine->update($products);
+
+        $this->sigmie->refresh($indexName);
+
+        $builder = new Builder($model, '');
+        $builder->whereNotIn('category', ['new', 'offers']);
+
+        $searchResponse = $engine->search($builder);
+
+        $this->assertCount(0, $searchResponse->hits());
+        $this->assertInstanceOf(Search::class, $searchResponse);
+
+        $builder = new Builder($model, '');
+        $builder->whereNotIn('category', []);
+
+        $searchResponse = $engine->search($builder);
+
+        $this->assertCount(2, $searchResponse->hits());
+        $this->assertInstanceOf(Search::class, $searchResponse);
+
+        $builder = new Builder($model, '');
+        $builder->whereNotIn('category', ['new']);
 
         $searchResponse = $engine->search($builder);
 

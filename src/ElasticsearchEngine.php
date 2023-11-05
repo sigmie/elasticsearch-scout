@@ -5,20 +5,16 @@ declare(strict_types=1);
 namespace Sigmie\ElasticsearchScout;
 
 use Exception;
-use Illuminate\Contracts\Container\BindingResolutionException;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\LazyCollection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\Engines\Engine;
-use Psr\Container\NotFoundExceptionInterface;
-use Psr\Container\ContainerExceptionInterface;
 use Sigmie\Base\Http\Responses\Search;
 use Sigmie\Document\Document;
 use Sigmie\Index\AliasedIndex;
 use Sigmie\Index\UpdateIndex;
 use Sigmie\Mappings\NewProperties;
-use Sigmie\Parse\ParseException;
 use Sigmie\Sigmie;
 
 class ElasticsearchEngine extends Engine
@@ -31,7 +27,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $index = $this->sigmie
             ->index($indexName);
@@ -55,12 +51,12 @@ class ElasticsearchEngine extends Engine
             return;
         }
 
-        throw new Exception("Failed to update an Index without an alias. Please make sure to run scout:index before executing scout:import.");
+        throw new Exception('Failed to update an Index without an alias. Please make sure to run scout:index before executing scout:import.');
     }
 
     public function deleteAllIndexes()
     {
-        $prefix = config('scout.prefix') . '*';
+        $prefix = config('scout.prefix').'*';
 
         $indices = $this->sigmie->indices($prefix);
 
@@ -89,7 +85,7 @@ class ElasticsearchEngine extends Engine
 
                 $model->hit($hit);
 
-                return  $model;
+                return $model;
             })
             ->sortByDesc(
                 fn ($model) => (float) $model->hit['_score']
@@ -103,11 +99,11 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $index = $this->sigmie->index($indexName);
 
-        if (!is_null($index)) {
+        if (! is_null($index)) {
             throw new Exception("Index {$indexName} already exists.");
         }
 
@@ -130,7 +126,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $index = $this->sigmie->index($indexName);
 
@@ -139,13 +135,12 @@ class ElasticsearchEngine extends Engine
 
     public function update($models)
     {
-        $indexName = config('scout.prefix') . $models->first()->getTable();
+        $indexName = config('scout.prefix').$models->first()->getTable();
 
         $docs = $models
             ->filter(fn ($model) => empty($model->toSearchableArray()) === false)
             ->map(
-                fn ($model) =>
-                new Document($model->toSearchableArray(), (string) $model->id)
+                fn ($model) => new Document($model->toSearchableArray(), (string) $model->id)
             )->toArray();
 
         $this->sigmie->collect($indexName)->merge($docs);
@@ -153,7 +148,7 @@ class ElasticsearchEngine extends Engine
 
     public function delete($models)
     {
-        $indexName = config('scout.prefix') . $models->first()->getTable();
+        $indexName = config('scout.prefix').$models->first()->getTable();
 
         $ids = $models
             ->map(fn ($model) => $model->getScoutKey())
@@ -164,27 +159,29 @@ class ElasticsearchEngine extends Engine
     }
 
     /**
-     * @param Builder $builder
-     *
      * @return Search
      */
     public function search(Builder $builder)
     {
         $model = $builder->model;
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $limit = $builder->limit ? $builder->limit : 10;
 
         $whereIns = collect($builder->whereIns)
-            ->map(fn ($vals, $field) => "{$field}:['" . implode('\',\'', $vals) . "']")
+            ->map(fn ($vals, $field) => "{$field}:['".implode('\',\'', $vals)."']")
             ->values();
 
         $wheres = collect($builder->wheres)
             ->map(fn ($val, $field) => "{$field}:'{$val}'")
             ->values();
 
-        $filters = $whereIns->merge($wheres)->implode(' AND ');
+        $whereNotIns = collect($builder->whereNotIns)
+            ->map(fn ($vals, $field) => "NOT {$field}:['".implode('\',\'', $vals)."']")
+            ->values();
+
+        $filters = $whereIns->merge($wheres)->merge($whereNotIns)->implode(' AND ');
 
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
@@ -199,7 +196,7 @@ class ElasticsearchEngine extends Engine
 
         $model->elasticsearchSearch($newSearch);
 
-        if (!is_null($builder->callback)) {
+        if (! is_null($builder->callback)) {
             ($builder->callback)($search);
         }
 
@@ -207,17 +204,15 @@ class ElasticsearchEngine extends Engine
     }
 
     /**
-     * @param Builder $builder
-     * @param int $perPage
-     * @param int $page
-     *
+     * @param  int  $perPage
+     * @param  int  $page
      * @return Search
      */
     public function paginate(Builder $builder, $perPage, $page)
     {
         $model = $builder->model;
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
@@ -245,10 +240,8 @@ class ElasticsearchEngine extends Engine
     }
 
     /**
-     *
-     * @param Builder $builder
-     * @param Search $results
-     * @param Model $model
+     * @param  Search  $results
+     * @param  Model  $model
      * @return Collection
      */
     public function map(Builder $builder, $results, $model)
@@ -266,17 +259,16 @@ class ElasticsearchEngine extends Engine
 
                 $model->hit($hit);
 
-                return  $model;
+                return $model;
             })
             ->sortByDesc(fn ($model) => (float) $model->hit['_score'])
             ->values();
 
-        return  $models;
+        return $models;
     }
 
     /**
-     *
-     * @param Search $results
+     * @param  Search  $results
      * @return int
      */
     public function getTotalCount($results)
@@ -286,7 +278,7 @@ class ElasticsearchEngine extends Engine
 
     public function flush($model)
     {
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $this->sigmie->collect($indexName)->clear();
     }

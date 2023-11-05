@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuites>
-  <testsuite name="Sigmie\ElasticsearchScout\Tests\SearchTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/SearchTest.php" tests="1" assertions="2" errors="0" warnings="0" failures="0" skipped="0" time="0.466306">
-    <testcase name="wheres" class="Sigmie\ElasticsearchScout\Tests\SearchTest" classname="Sigmie.ElasticsearchScout.Tests.SearchTest" file="/Users/nico/github.com/sigmie/demo/packages/elasticsearch-scout/tests/SearchTest.php" line="45" assertions="2" time="0.466306"/>
-  </testsuite>
-</testsuites>

@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace Sigmie\ElasticsearchScout\Tests;
 
 use Exception;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\LazyCollection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
-use Sigmie\Document\Document;
 use Sigmie\ElasticsearchScout\ElasticsearchEngine;
-use Sigmie\Testing\Assert;
-use Workbench\App\Models\Post;
 use Workbench\App\Models\Product;
 
 class ElasticsearchEngineTest extends TestCase
@@ -28,7 +24,7 @@ class ElasticsearchEngineTest extends TestCase
 
         $this->assertIndexExists($indexName);
 
-        /** @var  ElasticsearchEngine $engine */
+        /** @var ElasticsearchEngine $engine */
         $engine = app(EngineManager::class);
 
         $engine->deleteAllIndexes();
@@ -43,7 +39,7 @@ class ElasticsearchEngineTest extends TestCase
     {
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix') . ($products->first())->getTable();
+        $indexName = config('scout.prefix').($products->first())->getTable();
 
         /** @var ElasticsearchEngine $engine */
         $engine = app(EngineManager::class);
@@ -62,7 +58,7 @@ class ElasticsearchEngineTest extends TestCase
     {
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix') . ($products->first())->getTable();
+        $indexName = config('scout.prefix').($products->first())->getTable();
 
         /** @var ElasticsearchEngine $engine */
         $engine = app(EngineManager::class);
@@ -94,7 +90,7 @@ class ElasticsearchEngineTest extends TestCase
 
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $engine->update($products);
 
@@ -119,7 +115,7 @@ class ElasticsearchEngineTest extends TestCase
 
         $engine->createIndex($model);
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $searchResponse = $this->sigmie->newSearch($indexName)->get();
 
@@ -129,7 +125,6 @@ class ElasticsearchEngineTest extends TestCase
 
         $this->assertCount(0, $mapped);
     }
-
 
     /**
      * @test
@@ -145,7 +140,7 @@ class ElasticsearchEngineTest extends TestCase
 
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $engine->update($products);
 
@@ -174,7 +169,7 @@ class ElasticsearchEngineTest extends TestCase
 
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $engine->update($products);
 
@@ -201,7 +196,7 @@ class ElasticsearchEngineTest extends TestCase
 
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $engine->update($products);
 
@@ -230,7 +225,7 @@ class ElasticsearchEngineTest extends TestCase
 
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         $engine->update($products);
 
@@ -252,7 +247,7 @@ class ElasticsearchEngineTest extends TestCase
     {
         $model = new Product();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         /** @var ElasticsearchEngine $engine */
         $engine = app(EngineManager::class);
@@ -273,7 +268,7 @@ class ElasticsearchEngineTest extends TestCase
     {
         $model = new Product();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         /** @var ElasticsearchEngine $engine */
         $engine = app(EngineManager::class);
@@ -290,7 +285,7 @@ class ElasticsearchEngineTest extends TestCase
     {
         $model = new Product();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = config('scout.prefix').$model->getTable();
 
         /** @var ElasticsearchEngine $engine */
         $engine = app(EngineManager::class);

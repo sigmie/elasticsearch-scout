@@ -20,7 +20,7 @@ class CommandsTest extends TestCase
 
         Artisan::call('scout:import', ['model' => Product::class]);
 
-        $indexName = config('scout.prefix') . $product->getTable();
+        $indexName = config('scout.prefix').$product->getTable();
 
         $this->sigmie->refresh($indexName);
 
@@ -32,7 +32,7 @@ class CommandsTest extends TestCase
      */
     public function create_index()
     {
-        $indexName = config('scout.prefix') . (new Product())->getTable();
+        $indexName = config('scout.prefix').(new Product())->getTable();
 
         $this->assertIndexNotExists($indexName);
 
@@ -46,7 +46,7 @@ class CommandsTest extends TestCase
      */
     public function delete_index()
     {
-        $indexName = config('scout.prefix') . (new Product())->getTable();
+        $indexName = config('scout.prefix').(new Product())->getTable();
 
         Artisan::call('scout:index', ['name' => Product::class]);
 
@@ -62,12 +62,12 @@ class CommandsTest extends TestCase
      */
     public function delete_all_indices()
     {
-        $productIndexName = config('scout.prefix') . (new Product())->getTable();
+        $productIndexName = config('scout.prefix').(new Product())->getTable();
         Artisan::call('scout:index', ['name' => Product::class]);
 
         $this->assertIndexExists($productIndexName);
 
-        $postIndexName = config('scout.prefix') . (new Post())->getTable();
+        $postIndexName = config('scout.prefix').(new Post())->getTable();
         Artisan::call('scout:index', ['name' => Post::class]);
 
         $this->assertIndexExists($postIndexName);
@@ -85,10 +85,10 @@ class CommandsTest extends TestCase
     {
         $product = Product::factory()->create();
 
-        $indexName = config('scout.prefix') . $product->getTable();
+        $indexName = config('scout.prefix').$product->getTable();
 
         $this->sigmie->collect($indexName, true)->merge([
-            new Document($product->toSearchableArray(), (string) $product->id)
+            new Document($product->toSearchableArray(), (string) $product->id),
         ]);
 
         $this->assertEquals(1, $this->sigmie->collect($indexName)->count());

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Sigmie\ElasticsearchScout\Tests;
 
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Scout\ScoutServiceProvider;
 use Orchestra\Testbench\Concerns\WithWorkbench;
@@ -13,6 +12,7 @@ use Sigmie\Base\APIs\Analyze;
 use Sigmie\Base\APIs\Explain;
 use Sigmie\Base\Http\ElasticsearchConnection;
 use Sigmie\Document\Actions as DocumentActions;
+use Sigmie\ElasticsearchScout\ElasticsearchScout;
 use Sigmie\ElasticsearchScout\ElasticsearchScoutServiceProvider;
 use Sigmie\Http\JSONClient;
 use Sigmie\Index\Actions as IndexAction;
@@ -22,13 +22,13 @@ use Sigmie\Testing\ClearElasticsearch;
 
 abstract class TestCase extends BaseTestCase
 {
+    use Analyze, Explain;
+    use Assertions;
+    use ClearElasticsearch;
+    use DocumentActions;
+    use IndexAction;
     use RefreshDatabase;
     use WithWorkbench;
-    use ClearElasticsearch;
-    use Assertions;
-    use IndexAction;
-    use DocumentActions;
-    use Explain, Analyze;
 
     protected Sigmie $sigmie;
 
@@ -47,6 +47,13 @@ abstract class TestCase extends BaseTestCase
         $this->setElasticsearchConnection($this->elasticsearchConnection);
 
         $this->sigmie = new Sigmie($this->elasticsearchConnection);
+    }
+
+    protected function getPackageAliases($app)
+    {
+        return [
+            'elasticsearch-scout' => ElasticsearchScout::class,
+        ];
     }
 
     protected function getPackageProviders($app)
