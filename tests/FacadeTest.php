@@ -21,9 +21,6 @@ class FacadeTest extends TestCase
     {
         $model = new Product();
 
-        /** @var ElasticsearchEngine $engine */
-        $engine = app(EngineManager::class);
-
         $indexName = config('scout.prefix') . $model->getTable();
 
         Sigmie::newIndex($indexName)->create();
