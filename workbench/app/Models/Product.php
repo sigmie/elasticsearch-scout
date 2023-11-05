@@ -14,6 +14,7 @@ class Product extends Model
     public function elasticsearchProperties(NewProperties $newProperties)
     {
         $newProperties->title('title');
+        $newProperties->category();
         $newProperties->price();
     }
 

@@ -18,6 +18,7 @@ use Sigmie\Document\Document;
 use Sigmie\Index\AliasedIndex;
 use Sigmie\Index\UpdateIndex;
 use Sigmie\Mappings\NewProperties;
+use Sigmie\Parse\ParseException;
 use Sigmie\Sigmie;
 
 class ElasticsearchEngine extends Engine
@@ -162,6 +163,11 @@ class ElasticsearchEngine extends Engine
         return $this->sigmie->collect($indexName)->remove($ids);
     }
 
+    /**
+     * @param Builder $builder
+     *
+     * @return Search
+     */
     public function search(Builder $builder)
     {
         $model = $builder->model;

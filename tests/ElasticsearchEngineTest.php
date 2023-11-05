@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sigmie\ElasticsearchScout\Tests;
 
+use Exception;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\LazyCollection;
 use Laravel\Scout\Builder;
@@ -105,6 +106,30 @@ class ElasticsearchEngineTest extends TestCase
 
         $mapped->each(fn (Product $product) => $this->assertInstanceOf(Product::class, $product));
     }
+
+    /**
+     * @test
+     */
+    public function empty_lazy_map()
+    {
+        $model = new Product();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+
+        $mapped = $engine->lazyMap(new Builder($model, ''), $searchResponse, $model);
+
+        $this->assertInstanceOf(LazyCollection::class, $mapped);
+
+        $this->assertCount(0, $mapped);
+    }
+
 
     /**
      * @test
@@ -218,6 +243,27 @@ class ElasticsearchEngineTest extends TestCase
         $searchResponse = $engine->paginate(new Builder($model, ''), perPage: 3, page: 2);
 
         $this->assertCount(2, $searchResponse->hits());
+    }
+
+    /**
+     * @test
+     */
+    public function create_index_exception()
+    {
+        $model = new Product();
+
+        $indexName = config('scout.prefix') . $model->getTable();
+
+        /** @var ElasticsearchEngine $engine */
+        $engine = app(EngineManager::class);
+
+        $engine->createIndex($model);
+
+        $this->assertIndexExists($indexName);
+
+        $this->expectException(Exception::class);
+
+        $engine->createIndex($model);
     }
 
     /**
