@@ -31,16 +31,10 @@ class SyncIndexSettingsCommand extends Command
     {
         $engine = $manager->engine();
 
-        $driver = config('scout.driver');
+        $settings = (array) config('elasticsearch-scout.index-settings', []);
 
-        try {
-            $settings = (array) config('elasticsearch-scout.index-settings', []);
+        $engine->updateIndexSettings($indexName = $this->argument('name'), $settings);
 
-            $engine->updateIndexSettings($indexName = $this->argument('name'), $settings);
-
-            $this->info('Settings for the ['.$indexName.'] index synced successfully.');
-        } catch (Exception $exception) {
-            $this->error($exception->getMessage());
-        }
+        $this->info('Settings for the [' . $indexName . '] index synced successfully.');
     }
 }
