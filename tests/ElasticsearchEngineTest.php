@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sigmie\ElasticsearchScout\Tests;
 
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\LazyCollection;
 use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
@@ -176,7 +177,9 @@ class ElasticsearchEngineTest extends TestCase
 
         $this->sigmie->refresh($indexName);
 
-        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+        $res = $this->sigmie->newSearch($indexName)->get();
+
+        $searchResponse = new JsonResponse($res->json(), $res->code());
 
         $mapped = $engine->map(new Builder($model, ''), $searchResponse, $model);
 
@@ -197,7 +200,9 @@ class ElasticsearchEngineTest extends TestCase
 
         $indexName = config('scout.prefix') . $model->getTable();
 
-        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+        $res = $this->sigmie->newSearch($indexName)->get();
+
+        $searchResponse = new JsonResponse($res->json(), $res->code());
 
         $mapped = $engine->lazyMap(new Builder($model, ''), $searchResponse, $model);
 
@@ -226,7 +231,9 @@ class ElasticsearchEngineTest extends TestCase
 
         $this->sigmie->refresh($indexName);
 
-        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+        $res = $this->sigmie->newSearch($indexName)->get();
+
+        $searchResponse = new JsonResponse($res->json(), $res->code());
 
         $mapped = $engine->lazyMap(new Builder($model, ''), $searchResponse, $model);
 
@@ -255,7 +262,9 @@ class ElasticsearchEngineTest extends TestCase
 
         $this->sigmie->refresh($indexName);
 
-        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+        $res = $this->sigmie->newSearch($indexName)->get();
+
+        $searchResponse = new JsonResponse($res->json(), $res->code());
 
         $count = $engine->getTotalCount($searchResponse);
 
@@ -282,7 +291,9 @@ class ElasticsearchEngineTest extends TestCase
 
         $this->sigmie->refresh($indexName);
 
-        $searchResponse = $this->sigmie->newSearch($indexName)->get();
+        $res = $this->sigmie->newSearch($indexName)->get();
+
+        $searchResponse = new JsonResponse($res->json(), $res->code());
 
         $mapIds = $engine->mapIds($searchResponse);
 
@@ -313,11 +324,11 @@ class ElasticsearchEngineTest extends TestCase
 
         $searchResponse = $engine->paginate(new Builder($model, ''), perPage: 3, page: 1);
 
-        $this->assertCount(3, $searchResponse->hits());
+        $this->assertCount(3, dot($searchResponse->getData(true))->get('hits.hits'));
 
         $searchResponse = $engine->paginate(new Builder($model, ''), perPage: 3, page: 2);
 
-        $this->assertCount(2, $searchResponse->hits());
+        $this->assertCount(2, dot($searchResponse->getData(true))->get('hits.hits'));
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sigmie\ElasticsearchScout\Tests;
 
+use Illuminate\Http\JsonResponse;
 use Laravel\Scout\Builder;
 use Laravel\Scout\EngineManager;
 use Sigmie\Base\Http\Responses\Search;
@@ -26,7 +27,7 @@ class SearchTest extends TestCase
 
         $products = Product::factory()->count(5)->create();
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $engine->update($products);
 
@@ -34,7 +35,7 @@ class SearchTest extends TestCase
 
         $searchResponse = $engine->search(new Builder($model, ''));
 
-        $this->assertInstanceOf(Search::class, $searchResponse);
+        $this->assertInstanceOf(JsonResponse::class, $searchResponse);
     }
 
     /**
@@ -55,7 +56,7 @@ class SearchTest extends TestCase
             'category' => 'new',
         ]);
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $engine->update($products);
 
@@ -66,8 +67,10 @@ class SearchTest extends TestCase
 
         $searchResponse = $engine->search($builder);
 
-        $this->assertCount(1, $searchResponse->hits());
-        $this->assertInstanceOf(Search::class, $searchResponse);
+        $hits = dot($searchResponse->getData(true))->get('hits.hits');
+
+        $this->assertCount(1, $hits);
+        $this->assertInstanceOf(JsonResponse::class, $searchResponse);
     }
 
     /**
@@ -91,7 +94,7 @@ class SearchTest extends TestCase
             ]),
         ]);
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $engine->update($products);
 
@@ -102,16 +105,20 @@ class SearchTest extends TestCase
 
         $searchResponse = $engine->search($builder);
 
-        $this->assertCount(2, $searchResponse->hits());
-        $this->assertInstanceOf(Search::class, $searchResponse);
+        $hits = dot($searchResponse->getData(true))->get('hits.hits');
+
+        $this->assertCount(2, $hits);
+        $this->assertInstanceOf(JsonResponse::class, $searchResponse);
 
         $builder = new Builder($model, '');
         $builder->whereIn('category', []);
 
         $searchResponse = $engine->search($builder);
 
-        $this->assertCount(0, $searchResponse->hits());
-        $this->assertInstanceOf(Search::class, $searchResponse);
+        $hits = dot($searchResponse->getData(true))->get('hits.hits');
+
+        $this->assertCount(0, $hits);
+        $this->assertInstanceOf(JsonResponse::class, $searchResponse);
     }
 
     /**
@@ -135,7 +142,7 @@ class SearchTest extends TestCase
             ]),
         ]);
 
-        $indexName = config('scout.prefix').$model->getTable();
+        $indexName = config('scout.prefix') . $model->getTable();
 
         $engine->update($products);
 
@@ -146,23 +153,29 @@ class SearchTest extends TestCase
 
         $searchResponse = $engine->search($builder);
 
-        $this->assertCount(0, $searchResponse->hits());
-        $this->assertInstanceOf(Search::class, $searchResponse);
+        $hits = dot($searchResponse->getData(true))->get('hits.hits');
+
+        $this->assertCount(0, $hits);
+        $this->assertInstanceOf(JsonResponse::class, $searchResponse);
 
         $builder = new Builder($model, '');
         $builder->whereNotIn('category', []);
 
         $searchResponse = $engine->search($builder);
 
-        $this->assertCount(2, $searchResponse->hits());
-        $this->assertInstanceOf(Search::class, $searchResponse);
+        $hits = dot($searchResponse->getData(true))->get('hits.hits');
+
+        $this->assertCount(2, $hits);
+        $this->assertInstanceOf(JsonResponse::class, $searchResponse);
 
         $builder = new Builder($model, '');
         $builder->whereNotIn('category', ['new']);
 
         $searchResponse = $engine->search($builder);
 
-        $this->assertCount(1, $searchResponse->hits());
-        $this->assertInstanceOf(Search::class, $searchResponse);
+        $hits = dot($searchResponse->getData(true))->get('hits.hits');
+
+        $this->assertCount(1, $hits);
+        $this->assertInstanceOf(JsonResponse::class, $searchResponse);
     }
 }
