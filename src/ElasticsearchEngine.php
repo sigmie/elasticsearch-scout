@@ -228,6 +228,10 @@ class ElasticsearchEngine extends Engine
 
         $model->elasticsearchSearch($newSearch);
 
+        if (!is_null($builder->callback)) {
+            ($builder->callback)($newSearch);
+        }
+
         $res = $newSearch
             ->size($perPage)
             ->from($perPage * ($page - 1))
