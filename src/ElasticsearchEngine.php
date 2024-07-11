@@ -115,11 +115,14 @@ class ElasticsearchEngine extends Engine
 
         $newIndex = $this->sigmie
             ->newIndex($indexName)
-            ->properties($properties)
             ->shards((int) config('elasticsearch-scout.index-settings.shards'))
             ->replicas((int) config('elasticsearch-scout.index-settings.replicas'));
 
-        $model->elasticsearchIndex($newIndex);
+        // if we use a language builder inside the model the NewIndex builder
+        // is replaced by the language Builder and the reference becomes useless.
+        $newIndex = $model->elasticsearchIndex($newIndex);
+
+        $newIndex->properties($properties);
 
         $newIndex->create();
     }
