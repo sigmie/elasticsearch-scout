@@ -29,7 +29,7 @@ trait Searchable
 
     public function elasticsearchIndex(NewIndex $newIndex)
     {
-        $newIndex->tokenizeOnWordBoundaries()
+        return $newIndex->tokenizeOnWordBoundaries()
             ->lowercase()
             ->trim()
             ->shards(1)
