@@ -17,6 +17,7 @@ use Sigmie\Index\AliasedIndex;
 use Sigmie\Index\UpdateIndex;
 use Sigmie\Mappings\NewProperties;
 use Sigmie\Sigmie;
+use Throwable;
 
 class ElasticsearchEngine extends Engine
 {
@@ -143,10 +144,19 @@ class ElasticsearchEngine extends Engine
         $indexName = config('scout.prefix') . $models->first()->getTable();
 
         $docs = $models
-            ->filter(fn ($model) => empty($model->toSearchableArray()) === false)
-            ->map(
-                fn ($model) => new Document($model->toSearchableArray(), (string) $model->id)
-            )->toArray();
+            ->map(function ($model) {
+
+                $searchableArray = $model->toSearchableArray();
+
+                if (!empty($searchableArray)) {
+                    return new Document($searchableArray, (string) $model->id);
+                }
+
+                return null;
+            })
+            ->filter()
+            ->values()
+            ->toArray();
 
         $this->sigmie->collect($indexName)->merge($docs);
     }
