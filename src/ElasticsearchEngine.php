@@ -69,8 +69,11 @@ class ElasticsearchEngine extends Engine
     {
         $hits = dot($results->getData(true))->get('hits.hits');
 
-        $ids = array_map(fn($hit) => $hit['_id'], $hits);
+        $ids = collect($hits)->pluck('_id')->values()->all();
+
         $hits = collect($hits)->mapWithKeys(fn($hit) => [$hit['_id'] => $hit]);
+
+        $idsOrder = array_flip($ids);
 
         if (count($hits) === 0) {
             return LazyCollection::make($model->newCollection());
@@ -90,7 +93,7 @@ class ElasticsearchEngine extends Engine
 
                 return $model;
             })
-            ->reverse()
+            ->sortBy(fn($model) => $idsOrder[$model->getScoutKey()])
             ->values();
 
         return $models;
@@ -274,12 +277,15 @@ class ElasticsearchEngine extends Engine
     public function map(Builder $builder, $results, $model)
     {
         $hits = dot($results->getData(true))->get('hits.hits');
-        $ids = array_map(fn($hit) => $hit['_id'], $hits);
-        $hits = collect($hits)->mapWithKeys(fn($hit) => [$hit['_id'] => $hit]);
 
         if (count($hits) === 0) {
             return $model->newCollection();
         }
+
+        $ids = collect($hits)->pluck('_id')->values()->all();
+        $hits = collect($hits)->mapWithKeys(fn($hit) => [$hit['_id'] => $hit]);
+
+        $idsOrder = array_flip($ids);
 
         $models = $model->getScoutModelsByIds(
             $builder,
@@ -295,7 +301,7 @@ class ElasticsearchEngine extends Engine
 
                 return $model;
             })
-            ->reverse()
+            ->sortBy(fn($model) => $idsOrder[$model->getScoutKey()])
             ->values();
 
         return $models;
