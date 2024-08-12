@@ -21,9 +21,7 @@ use Throwable;
 
 class ElasticsearchEngine extends Engine
 {
-    public function __construct(protected Sigmie $sigmie)
-    {
-    }
+    public function __construct(protected Sigmie $sigmie) {}
 
     public function updateIndexSettings($model, array $options = [])
     {
@@ -71,8 +69,8 @@ class ElasticsearchEngine extends Engine
     {
         $hits = dot($results->getData(true))->get('hits.hits');
 
-        $ids = array_map(fn ($hit) => $hit['_id'], $hits);
-        $hits = collect($hits)->mapWithKeys(fn ($hit) => [$hit['_id'] => $hit]);
+        $ids = array_map(fn($hit) => $hit['_id'], $hits);
+        $hits = collect($hits)->mapWithKeys(fn($hit) => [$hit['_id'] => $hit]);
 
         if (count($hits) === 0) {
             return LazyCollection::make($model->newCollection());
@@ -86,13 +84,13 @@ class ElasticsearchEngine extends Engine
             ->map(function ($model) use ($hits) {
                 $hit = $hits[$model->id];
 
-                $model->hit($hit);
+                $model->withScoutMetadata('_score', (float) $hit['_score']);
+                $model->withScoutMetadata('_id', $hit['_id']);
+                $model->withScoutMetadata('_source', $hit['_source']);
 
                 return $model;
             })
-            ->sortByDesc(
-                fn ($model) => (float) $model->hit['_score']
-            )
+            ->reverse()
             ->values();
 
         return $models;
@@ -166,7 +164,7 @@ class ElasticsearchEngine extends Engine
         $indexName = config('scout.prefix') . $models->first()->getTable();
 
         $ids = $models
-            ->map(fn ($model) => $model->getScoutKey())
+            ->map(fn($model) => $model->getScoutKey())
             ->values()
             ->all();
 
@@ -185,15 +183,15 @@ class ElasticsearchEngine extends Engine
         $limit = $builder->limit ? $builder->limit : 10;
 
         $whereIns = collect($builder->whereIns)
-            ->map(fn ($vals, $field) => "{$field}:['" . implode('\',\'', $vals) . "']")
+            ->map(fn($vals, $field) => "{$field}:['" . implode('\',\'', $vals) . "']")
             ->values();
 
         $wheres = collect($builder->wheres)
-            ->map(fn ($val, $field) => "{$field}:'{$val}'")
+            ->map(fn($val, $field) => "{$field}:'{$val}'")
             ->values();
 
         $whereNotIns = collect($builder->whereNotIns)
-            ->map(fn ($vals, $field) => "NOT {$field}:['" . implode('\',\'', $vals) . "']")
+            ->map(fn($vals, $field) => "NOT {$field}:['" . implode('\',\'', $vals) . "']")
             ->values();
 
         $filters = $whereIns->merge($wheres)->merge($whereNotIns)->implode(' AND ');
@@ -257,7 +255,7 @@ class ElasticsearchEngine extends Engine
     {
         $hits = dot($results->getData(true))->get('hits.hits');
 
-        $ids = array_map(fn ($hit) => $hit['_id'], $hits);
+        $ids = array_map(fn($hit) => $hit['_id'], $hits);
 
         return collect($ids);
     }
@@ -270,21 +268,28 @@ class ElasticsearchEngine extends Engine
     public function map(Builder $builder, $results, $model)
     {
         $hits = dot($results->getData(true))->get('hits.hits');
-        $ids = array_map(fn ($hit) => $hit['_id'], $hits);
-        $hits = collect($hits)->mapWithKeys(fn ($hit) => [$hit['_id'] => $hit]);
+        $ids = array_map(fn($hit) => $hit['_id'], $hits);
+        $hits = collect($hits)->mapWithKeys(fn($hit) => [$hit['_id'] => $hit]);
+
+        if (count($hits) === 0) {
+            return $model->newCollection();
+        }
 
         $models = $model->getScoutModelsByIds(
             $builder,
             $ids
         )
             ->map(function ($model) use ($hits) {
+
                 $hit = $hits[$model->id];
 
-                $model->hit($hit);
+                $model->withScoutMetadata('_score', (float) $hit['_score']);
+                $model->withScoutMetadata('_id', $hit['_id']);
+                $model->withScoutMetadata('_source', $hit['_source']);
 
                 return $model;
             })
-            ->sortByDesc(fn ($model) => (float) $model->hit['_score'])
+            ->reverse()
             ->values();
 
         return $models;

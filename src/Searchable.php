@@ -40,14 +40,12 @@ trait Searchable
     {
         $array = $this->toArray();
 
-        $array['created_at'] = $this->created_at?->format('Y-m-d H:i:s.u');
-        $array['updated_at'] = $this->updated_at?->format('Y-m-d H:i:s.u');
+        foreach ($array as $key => $value) {
+            if ($value instanceof \DateTime || $value instanceof \Carbon\Carbon) {
+                $array[$key] = $value->format('Y-m-d H:i:s.u');
+            }
+        }
 
         return $array;
-    }
-
-    public function hit(array $hit)
-    {
-        $this->hit = $hit;
     }
 }
