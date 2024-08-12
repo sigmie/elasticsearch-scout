@@ -146,6 +146,12 @@ class ElasticsearchEngine extends Engine
 
                 $searchableArray = $model->toSearchableArray();
 
+                foreach ($searchableArray as $key => $value) {
+                    if ($value instanceof \DateTime || $value instanceof \Carbon\Carbon) {
+                        $searchableArray[$key] = $value->format('Y-m-d\TH:i:s.u\Z');
+                    }
+                }
+
                 if (!empty($searchableArray)) {
                     return new Document($searchableArray, (string) $model->id);
                 }

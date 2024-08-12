@@ -35,17 +35,4 @@ trait Searchable
             ->shards(1)
             ->replicas(0);
     }
-
-    public function toSearchableArray()
-    {
-        $array = $this->toArray();
-
-        foreach ($array as $key => $value) {
-            if ($value instanceof \DateTime || $value instanceof \Carbon\Carbon) {
-                $array[$key] = $value->format('Y-m-d H:i:s.u');
-            }
-        }
-
-        return $array;
-    }
 }
