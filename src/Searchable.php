@@ -13,8 +13,6 @@ trait Searchable
 {
     use ScoutSearchable;
 
-    public readonly array $hit;
-
     abstract public function elasticsearchProperties(NewProperties $newProperties);
 
     public function elasticsearchSearch(NewSearch $newSearch)
@@ -22,9 +20,14 @@ trait Searchable
         //
     }
 
-    public function searchableAs()
+    public function indexName()
     {
         return config('scout.prefix') . $this->getTable();
+    }
+
+    public function searchableAs()
+    {
+        return static::class;
     }
 
     public function elasticsearchIndex(NewIndex $newIndex)
