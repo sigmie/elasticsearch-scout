@@ -27,7 +27,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = $model->searchableAs();
 
         $index = $this->sigmie
             ->index($indexName);
@@ -103,7 +103,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = $model->searchableAs();
 
         $index = $this->sigmie->index($indexName);
 
@@ -133,7 +133,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = $model->searchableAs();
 
         $index = $this->sigmie->index($indexName);
 
@@ -142,7 +142,7 @@ class ElasticsearchEngine extends Engine
 
     public function update($models)
     {
-        $indexName = config('scout.prefix') . $models->first()->getTable();
+        $indexName = $models->first()->searchableAs();
 
         $docs = $models
             ->map(function ($model) {
@@ -170,7 +170,7 @@ class ElasticsearchEngine extends Engine
 
     public function delete($models)
     {
-        $indexName = config('scout.prefix') . $models->first()->getTable();
+        $indexName = $models->first()->searchableAs();
 
         $ids = $models
             ->map(fn($model) => $model->getScoutKey())
@@ -187,7 +187,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = $model->searchableAs();
 
         $limit = $builder->limit ? $builder->limit : 10;
 
@@ -236,7 +236,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = $model->searchableAs();
 
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
@@ -318,7 +318,7 @@ class ElasticsearchEngine extends Engine
 
     public function flush($model)
     {
-        $indexName = config('scout.prefix') . $model->getTable();
+        $indexName = $model->searchableAs();
 
         $this->sigmie->collect($indexName)->clear();
     }

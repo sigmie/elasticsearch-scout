@@ -24,7 +24,7 @@ trait Searchable
 
     public function searchableAs()
     {
-        return static::class;
+        return config('scout.prefix') . $this->getTable();
     }
 
     public function elasticsearchIndex(NewIndex $newIndex)
