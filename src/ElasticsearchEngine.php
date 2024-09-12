@@ -27,7 +27,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = $model->indexName();
+        $indexName = $model->elasticsearchIndexName();
 
         $index = $this->sigmie
             ->index($indexName);
@@ -103,7 +103,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = $model->indexName();
+        $indexName = $model->elasticsearchIndexName();
 
         $index = $this->sigmie->index($indexName);
 
@@ -133,7 +133,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = new $model();
 
-        $indexName = $model->indexName();
+        $indexName = $model->elasticsearchIndexName();
 
         $index = $this->sigmie->index($indexName);
 
@@ -142,7 +142,7 @@ class ElasticsearchEngine extends Engine
 
     public function update($models)
     {
-        $indexName = $models->first()->indexName();
+        $indexName = $models->first()->elasticsearchIndexName();
 
         $docs = $models
             ->map(function ($model) {
@@ -170,7 +170,7 @@ class ElasticsearchEngine extends Engine
 
     public function delete($models)
     {
-        $indexName = $models->first()->indexName();
+        $indexName = $models->first()->elasticsearchIndexName();
 
         $ids = $models
             ->map(fn($model) => $model->getScoutKey())
@@ -187,7 +187,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
-        $indexName = $model->indexName();
+        $indexName = $model->elasticsearchIndexName();
 
         $limit = $builder->limit ? $builder->limit : 10;
 
@@ -236,7 +236,7 @@ class ElasticsearchEngine extends Engine
     {
         $model = $builder->model;
 
-        $indexName = $model->indexName();
+        $indexName = $model->elasticsearchIndexName();
 
         $properties = new NewProperties;
         $model->elasticsearchProperties($properties);
@@ -318,7 +318,7 @@ class ElasticsearchEngine extends Engine
 
     public function flush($model)
     {
-        $indexName = $model->indexName();
+        $indexName = $model->elasticsearchIndexName();
 
         $this->sigmie->collect($indexName)->clear();
     }

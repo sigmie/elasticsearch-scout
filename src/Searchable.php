@@ -20,7 +20,7 @@ trait Searchable
         //
     }
 
-    public function indexName()
+    public function elasticsearchIndexName()
     {
         return config('scout.prefix') . $this->getTable();
     }
